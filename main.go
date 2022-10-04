@@ -261,6 +261,69 @@ func matrixSpearman(mainMatrix [][]float64) {
 	}
 }
 
+func fullNormalized(optMatrix [][]float64) [][]float64 {
+	numCrit := len(optMatrix)
+	numAlt := len(optMatrix[0])
+	normMatrix := make([][]float64, numCrit)
+	for i := 0; i < numCrit; i++ {
+		normMatrix[i] = make([]float64, numAlt)
+	}
+	for i := 0; i < numCrit; i++ {
+		min, max := MinMax(optMatrix[i])
+		for j := 0; j < numAlt; j++ {
+			normMatrix[i][j] = (optMatrix[i][j] - min) / (max - min)
+		}
+
+	}
+	return normMatrix
+}
+
+func MinMax(array []float64) (float64, float64) {
+	var max float64 = array[0]
+	var min float64 = array[0]
+	for _, value := range array {
+		if max < value {
+			max = value
+		}
+		if min > value {
+			min = value
+		}
+	}
+	return min, max
+}
+
+func idealPoint(normMatrix [][]float64) ([]float64, float64, int) {
+	numCrit := len(normMatrix)
+	numAlt := len(normMatrix[0])
+	idealPointMatrix := make([][]float64, numCrit)
+	for i := 0; i < numCrit; i++ {
+		idealPointMatrix[i] = make([]float64, numAlt)
+	}
+
+	for i := 0; i < numCrit; i++ {
+		_, max := MinMax(normMatrix[i])
+		for j := 0; j < numAlt; j++ {
+			idealPointMatrix[i][j] = sqr(normMatrix[i][j] - max)
+		}
+
+	}
+	ipArr := make([]float64, numAlt)
+	for j := 0; j < numAlt; j++ {
+		for i := 0; i < numCrit; i++ {
+			//fmt.Println(idealPointMatrix[i])
+			ipArr[j] += idealPointMatrix[i][j]
+		}
+	}
+	ip, _ := MinMax(ipArr)
+	alt := 0
+	for i, v := range ipArr {
+		if v == ip {
+			alt = i + 1
+		}
+	}
+	return ipArr, ip, alt
+}
+
 func main() {
 	/*
 		{2, 1, 1, 1},
@@ -270,13 +333,18 @@ func main() {
 		{4, 4, 2, 3},
 		{5, 5, 4, 4},
 	*/
-
 	mainMatrix := [][]float64{
 		{2, 1, 3, 4, 4, 5},
 		{1, 2, 2, 3, 4, 5},
 		{1, 1, 1, 3, 2, 4},
 		{1, 1, 2, 3, 3, 4},
 		{3, 1, 3, 4, 3, 2},
+	}
+
+	optMatrix := [][]float64{
+		{175, 190, 150, 160, 120, 111},
+		{20, 10, 5, 14, 12, 9},
+		{1, 3, 3, 4, 5, 6},
 	}
 
 	//fmt.Println(rankingTwoDimensional(mainMatrix))
@@ -295,5 +363,6 @@ func main() {
 	matrixSpearman(mainMatrix)
 	kendalW, s := KendallW(mainMatrix)
 	fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\n")
+	fmt.Println(idealPoint(fullNormalized(optMatrix)))
 
 }
