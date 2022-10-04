@@ -157,6 +157,18 @@ func rankingTwoDimensional(mainMatrix [][]float64) [][]float64 {
 	return rankMatrix
 }
 
+func sumAlts(matrix [][]float64) []float64 {
+	numCrit := len(matrix)
+	numAlt := len(matrix[0])
+	sumAltsArr := make([]float64, numAlt)
+	for j := 0; j < numAlt; j++ {
+		for i := 0; i < numCrit; i++ {
+			sumAltsArr[j] += matrix[i][j]
+		}
+	}
+	return sumAltsArr
+}
+
 func commonMatrix(mainMatrix [][]float64) [][][]int {
 	n := len(mainMatrix)    //4
 	m := len(mainMatrix[1]) //6
@@ -253,9 +265,11 @@ func matrixSpearman(mainMatrix [][]float64) {
 		for j := i + 1; j < len(mainMatrix); j++ {
 			value, pValue := Spearman(mainMatrix[i], mainMatrix[j])
 			if pValue < 0.05 {
-				fmt.Println(value, " | отвергается гипотеза об отсутсвуии корр. связи")
+				fmt.Printf("%.4f", value)
+				fmt.Println(" | отвергается гипотеза об отсутствии корр. связи")
 			} else {
-				fmt.Println(value, " | подтверждается гипотеза об отсутсвуии корр. связи")
+				fmt.Printf("%.4f", value)
+				fmt.Println(" | подтверждается гипотеза об отсутствии корр. связи")
 			}
 		}
 	}
@@ -324,6 +338,38 @@ func idealPoint(normMatrix [][]float64) ([]float64, float64, int) {
 	return ipArr, ip, alt
 }
 
+func antiIdealPoint(normMatrix [][]float64) ([]float64, float64, int) {
+	numCrit := len(normMatrix)
+	numAlt := len(normMatrix[0])
+	idealPointMatrix := make([][]float64, numCrit)
+	for i := 0; i < numCrit; i++ {
+		idealPointMatrix[i] = make([]float64, numAlt)
+	}
+
+	for i := 0; i < numCrit; i++ {
+		min, _ := MinMax(normMatrix[i])
+		for j := 0; j < numAlt; j++ {
+			idealPointMatrix[i][j] = sqr(normMatrix[i][j] - min)
+		}
+
+	}
+	ipArr := make([]float64, numAlt)
+	for j := 0; j < numAlt; j++ {
+		for i := 0; i < numCrit; i++ {
+			//fmt.Println(idealPointMatrix[i])
+			ipArr[j] += idealPointMatrix[i][j]
+		}
+	}
+	_, ip := MinMax(ipArr)
+	alt := 0
+	for i, v := range ipArr {
+		if v == ip {
+			alt = i + 1
+		}
+	}
+	return ipArr, ip, alt
+}
+
 func main() {
 	/*
 		{2, 1, 1, 1},
@@ -350,19 +396,39 @@ func main() {
 	//fmt.Println(rankingTwoDimensional(mainMatrix))
 	resultRanking := rankingTwoDimensional(mainMatrix)
 	result := commonMatrix(mainMatrix)
-	fmt.Println("Ранжировка (1 критерий):\n")
+	fmt.Print("Ранжировка (1 критерий):\n")
 	for i := range result {
 		fmt.Println("Эксперт №", i+1, ":", resultRanking[i])
 	}
-	fmt.Println("\nОбобщённые ранжировки:\n")
+	fmt.Println()
+	sumAlt := sumAlts(resultRanking)
+	for i, v := range sumAlt {
+		fmt.Println("Сумма ранга по альтернативе №", i+1, " = ", v)
+	}
+	fmt.Print("\nОбобщённые ранжировки:\n")
 	for i := range result {
 		fmt.Println("Эксперт №", i+1, ":", result[i])
 	}
 	fmt.Println("\nЗначения для расчёта медианы: ", pairComparison(result, 4), "\n")
-	fmt.Println("Гипотезы наличия корреляционной связи: \n")
+	fmt.Print("Гипотезы наличия корреляционной связи: \n")
 	matrixSpearman(mainMatrix)
 	kendalW, s := KendallW(mainMatrix)
 	fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\n")
-	fmt.Println(idealPoint(fullNormalized(optMatrix)))
+	normMatrix := fullNormalized(optMatrix)
+	fmt.Print("Нормализированные значения:\n")
+	for i := 0; i < len(normMatrix); i++ {
+		fmt.Printf("%.2f", normMatrix[i])
+		fmt.Print("\n")
+	}
+	ipArr, ip, i := idealPoint(normMatrix)
+	fmt.Println("\nРасстояние до идеальной точки: ", ip, "Альтернатива: ", i)
+	fmt.Print("Матрица всех расстояний ид.т: ")
+	fmt.Printf("%.2f", ipArr)
+	fmt.Print("\n")
+	aipArr, aip, ai := antiIdealPoint(normMatrix)
+	fmt.Println("Расстояние до антиидеальной точки: ", aip, "Альтернатива: ", ai)
+	fmt.Print("Матрица всех расстояний а.ид.т: ")
+	fmt.Printf("%.2f", aipArr)
+	fmt.Print("\n")
 
 }
