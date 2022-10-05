@@ -71,7 +71,7 @@ func Spearman(data1, data2 []float64) (rs float64, p float64) {
 
 	fac := (1.0 - sf/en3n) * (1.0 - sg/en3n)
 	// без math.Sqrt(fac) работает аналогично ходашинской формуле
-	rs = (1.0 - (6.0/en3n)*(d+(sf+sg)/12.0)) / math.Sqrt(fac)
+	rs = (1.0 - (6.0/en3n)*(d+(sf+sg)/12.0))
 
 	if fac = (rs + 1.0) * (1.0 - rs); fac > 0 {
 		t := rs * math.Sqrt((en-2.0)/fac)
@@ -370,6 +370,61 @@ func antiIdealPoint(normMatrix [][]float64) ([]float64, float64, int) {
 	return ipArr, ip, alt
 }
 
+func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
+	const e = 0.001
+	numCrit := len(rankMatrix)
+	numAlt := len(rankMatrix[0])
+	sumRanks := sumAlts(rankMatrix)
+
+	avgRanks := make([]float64, len(sumRanks))
+	normCoefArr := make([]float64, len(sumRanks))
+
+	normCoef := 0.0
+
+	koefCompMatrix := make([][]float64, numCrit)
+	for i := 0; i < numCrit; i++ {
+		koefCompMatrix[i] = make([]float64, numAlt)
+	}
+
+	kArr := make([]float64, numCrit)
+
+	avgCompMatrix := make([][]float64, numCrit)
+	for i := 0; i < numCrit; i++ {
+		avgCompMatrix[i] = make([]float64, numAlt)
+	}
+	var end = true
+	avgRanks1 := make([]float64, len(sumRanks))
+	for end == true {
+		for i, v := range sumRanks {
+			avgRanks[i] = v / float64(len(rankMatrix))
+			normCoefArr[i] = avgRanks[i] * v
+			normCoef += normCoefArr[i]
+		}
+		//fmt.Println(normCoef)
+		for i := 0; i < len(rankMatrix); i++ {
+			for j := 0; j < len(rankMatrix[0]); j++ {
+				koefCompMatrix[i][j] = rankMatrix[i][j] * avgRanks[j]
+				kArr[i] += koefCompMatrix[i][j]
+			}
+			kArr[i] = kArr[i] * (1 / normCoef)
+		}
+
+		for i := 0; i < numCrit; i++ {
+			for j := 0; j < numAlt; j++ {
+				avgCompMatrix[i][j] = rankMatrix[i][j] * kArr[i]
+				avgRanks1[j] += avgCompMatrix[i][j]
+			}
+		}
+
+		for i := range avgRanks {
+			if e < math.Abs(avgRanks[i]-avgRanks1[i]) {
+				end = false
+			}
+		}
+	}
+	return kArr
+}
+
 func main() {
 	/*
 		{2, 1, 1, 1},
@@ -379,20 +434,46 @@ func main() {
 		{4, 4, 2, 3},
 		{5, 5, 4, 4},
 	*/
+
 	mainMatrix := [][]float64{
 		{2, 1, 3, 4, 4, 5},
 		{1, 2, 2, 3, 4, 5},
 		{1, 1, 1, 3, 2, 4},
 		{1, 1, 2, 3, 3, 4},
-		{3, 1, 3, 4, 3, 2},
+		//{3, 1, 3, 4, 3, 2},
 	}
 
+	/*
+		crtMatrix1 := [][]float64{
+			{2, 1, 3, 4, 4, 5},
+			{9, 10, 5, 3, 5, 9},
+			{8, 4, 7, 3, 5, 1},
+			{1, 1, 2, 3, 3, 4},
+		}
+		crtMatrix2 := [][]float64{
+			{2, 1, 3, 4, 4, 5},
+			{7, 8, 7, 2, 7, 9},
+			{7, 3, 9, 6, 5, 3},
+			{1, 1, 2, 3, 3, 4},
+		}
+		crtMatrix3 := [][]float64{
+			{2, 1, 3, 4, 4, 5},
+			{5, 10, 2, 2, 3, 2},
+			{5, 2, 4, 7, 9, 2},
+			{1, 1, 2, 3, 3, 4},
+		}
+
+		fullMatrix := [][][]float64{crtMatrix1, crtMatrix2, crtMatrix3}
+	*/
 	optMatrix := [][]float64{
 		{175, 190, 150, 160, 120, 111},
 		{20, 10, 5, 14, 12, 9},
 		{1, 3, 3, 4, 5, 6},
 	}
 
+	//for i := range fullMatrix {
+	//	mainMatrix := fullMatrix[i]
+	//fmt.Println("Критерий №", i+1)
 	//fmt.Println(rankingTwoDimensional(mainMatrix))
 	resultRanking := rankingTwoDimensional(mainMatrix)
 	result := commonMatrix(mainMatrix)
@@ -410,10 +491,21 @@ func main() {
 		fmt.Println("Эксперт №", i+1, ":", result[i])
 	}
 	fmt.Println("\nЗначения для расчёта медианы: ", pairComparison(result, 4), "\n")
-	fmt.Print("Гипотезы наличия корреляционной связи: \n")
+	fmt.Println("Итоговая компетентность экспертов: ")
+	koefComp := EvlanovKutuzov(resultRanking)
+	_, maxCompExp := MinMax(koefComp)
+	for i, v := range koefComp {
+		fmt.Print("Эксперт №", i+1, " : ", v)
+		if maxCompExp == v {
+			fmt.Print(" (наиболее компетентный эксперт)")
+		}
+		fmt.Println()
+	}
+	fmt.Print("\nГипотезы наличия корреляционной связи: \n")
 	matrixSpearman(mainMatrix)
 	kendalW, s := KendallW(mainMatrix)
 	fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\n")
+	//}
 	normMatrix := fullNormalized(optMatrix)
 	fmt.Print("Нормализированные значения:\n")
 	for i := 0; i < len(normMatrix); i++ {
@@ -430,5 +522,6 @@ func main() {
 	fmt.Print("Матрица всех расстояний а.ид.т: ")
 	fmt.Printf("%.2f", aipArr)
 	fmt.Print("\n")
+	//fmt.Println(EvlanovKutuzov(resultRanking))
 
 }
