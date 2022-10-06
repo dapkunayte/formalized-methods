@@ -7,6 +7,46 @@ import (
 	"sort"
 )
 
+var KenwallWMatrix = map[int]map[int]float64{
+	3: {
+		5: 64.4,
+		6: 103.9,
+		7: 157.3,
+	},
+	4: {
+		4: 49.5,
+		5: 88.4,
+		6: 143.3,
+		7: 217.0,
+	},
+	5: {
+		4: 62.6,
+		5: 112.3,
+		6: 182.4,
+		7: 276.2,
+	},
+	6: {
+		4: 75.7,
+		5: 136.1,
+		6: 221.4,
+		7: 335.2,
+	},
+	8: {
+		3: 48.1,
+		4: 101.7,
+		5: 183.7,
+		6: 229.0,
+		7: 571.0,
+	},
+	10: {
+		3: 60.0,
+		4: 127.8,
+		5: 231.2,
+		6: 376.7,
+		7: 571.0,
+	},
+}
+
 type sort2 struct {
 	x []float64
 	y []float64
@@ -83,7 +123,7 @@ func Spearman(data1, data2 []float64) (rs float64, p float64) {
 
 func sqr(x float64) float64 { return x * x }
 
-func KendallW(mainMatrix [][]float64) (kendallw float64, s float64) {
+func KendallW(mainMatrix [][]float64) (kendallw float64, s float64, kendallCrit float64) {
 	numExp := len(mainMatrix)
 	numAlt := len(mainMatrix[0])
 	var sumCRank float64
@@ -109,9 +149,9 @@ func KendallW(mainMatrix [][]float64) (kendallw float64, s float64) {
 		s += math.Pow(sumRank[i]-0.5*float64(numExp)*(float64(numAlt)+1), 2)
 	}
 	//math.Pow(rankMatrix[i][j]-0.5*float64(numExp)*(float64(numAlt)+1), 2)
-
+	kendallCrit = KenwallWMatrix[numExp][numAlt]
 	down := math.Pow(float64(numExp), 2)*(math.Pow(float64(numAlt), 3)-float64(numAlt)) - float64(numExp)*sumCRank
-	return 12 * s / down, s
+	return 12 * s / down, s, kendallCrit
 }
 
 func rankingTwoDimensional(mainMatrix [][]float64) [][]float64 {
@@ -371,29 +411,33 @@ func antiIdealPoint(normMatrix [][]float64) ([]float64, float64, int) {
 }
 
 func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
-	const e = 0.001
+	const e = 0.001 //условие останова
 	numCrit := len(rankMatrix)
 	numAlt := len(rankMatrix[0])
 	sumRanks := sumAlts(rankMatrix)
 
-	avgRanks := make([]float64, len(sumRanks))
-	normCoefArr := make([]float64, len(sumRanks))
+	avgRanks := make([]float64, len(sumRanks)) //массив для хранения средних оценок
 
-	normCoef := 0.0
+	normCoefArr := make([]float64, len(sumRanks)) //массив для хранения нормированных коэффициентов
 
-	koefCompMatrix := make([][]float64, numCrit)
+	normCoef := 0.0 //нормировочный коэффициент
+
+	koefCompMatrix := make([][]float64, numCrit) //матрица для получения критериев
 	for i := 0; i < numCrit; i++ {
 		koefCompMatrix[i] = make([]float64, numAlt)
 	}
 
-	kArr := make([]float64, numCrit)
+	kArr := make([]float64, numCrit) //массив критериев
 
-	avgCompMatrix := make([][]float64, numCrit)
+	avgCompMatrix := make([][]float64, numCrit) //ранги умноженные на кртиерии
 	for i := 0; i < numCrit; i++ {
 		avgCompMatrix[i] = make([]float64, numAlt)
 	}
-	var end = true
-	avgRanks1 := make([]float64, len(sumRanks))
+
+	var end = true //условие останова
+
+	avgRanks1 := make([]float64, len(sumRanks)) //второй массив средних оценок для проверки останова
+
 	for end == true {
 		for i, v := range sumRanks {
 			avgRanks[i] = v / float64(len(rankMatrix))
@@ -434,94 +478,105 @@ func main() {
 		{4, 4, 2, 3},
 		{5, 5, 4, 4},
 	*/
+	/*
+		mainMatrix := [][]float64{
+			{2, 1, 3, 4, 4, 5},
+			{1, 2, 2, 3, 4, 5},
+			{1, 1, 1, 3, 2, 4},
+			{1, 1, 2, 3, 3, 4},
+			//{3, 1, 3, 4, 3, 2},
+		}
 
-	mainMatrix := [][]float64{
-		{2, 1, 3, 4, 4, 5},
-		{1, 2, 2, 3, 4, 5},
-		{1, 1, 1, 3, 2, 4},
-		{1, 1, 2, 3, 3, 4},
-		//{3, 1, 3, 4, 3, 2},
+	*/
+
+	crtMatrix1 := [][]float64{
+		{8, 10, 5, 2, 3, 8},
+		{9, 10, 5, 3, 5, 9},
+		{8, 4, 7, 3, 5, 1},
+		{9, 10, 7, 5, 6, 9},
+	}
+	crtMatrix2 := [][]float64{
+		{5, 7, 5, 6, 5, 6},
+		{7, 8, 7, 2, 7, 9},
+		{7, 3, 9, 6, 5, 3},
+		{6, 8, 8, 9, 8, 7},
+	}
+	crtMatrix3 := [][]float64{
+		{5, 10, 2, 2, 5, 8},
+		{5, 10, 2, 2, 3, 2},
+		{5, 2, 4, 7, 9, 2},
+		{10, 9, 6, 6, 7, 5},
+	}
+
+	fullMatrix := [][][]float64{crtMatrix1, crtMatrix2, crtMatrix3}
+	/*
+		optMatrix := [][]float64{
+			{175, 190, 150, 160, 120, 111},
+			{20, 10, 5, 14, 12, 9},
+			{1, 3, 3, 4, 5, 6},
+		}
+
+	*/
+
+	for p := range fullMatrix {
+		mainMatrix := fullMatrix[p]
+		fmt.Println("Критерий №", p+1)
+		resultRanking := rankingTwoDimensional(mainMatrix)
+		result := commonMatrix(mainMatrix)
+		fmt.Print("Ранжировка (1 критерий):\n")
+		for i := range result {
+			fmt.Println("Эксперт №", i+1, ":", resultRanking[i])
+		}
+		fmt.Println()
+		sumAlt := sumAlts(resultRanking)
+		for i, v := range sumAlt {
+			fmt.Println("Сумма ранга по альтернативе №", i+1, " = ", v)
+		}
+		fmt.Print("\nОбобщённые ранжировки:\n")
+		for i := range result {
+			fmt.Println("Эксперт №", i+1, ":", result[i])
+		}
+		fmt.Println("\nЗначения для расчёта медианы: ", pairComparison(result, 4), "\n")
+		fmt.Println("Итоговая компетентность экспертов: ")
+		koefComp := EvlanovKutuzov(resultRanking)
+		_, maxCompExp := MinMax(koefComp)
+		for i, v := range koefComp {
+			fmt.Print("Эксперт №", i+1, " : ", v)
+			if maxCompExp == v {
+				fmt.Print(" (наиболее компетентный эксперт)")
+			}
+			fmt.Println()
+		}
+		fmt.Print("\nГипотезы наличия корреляционной связи: \n")
+		matrixSpearman(mainMatrix)
+		kendalW, s, kendallCrit := KendallW(mainMatrix)
+		fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\nКритическое значение: ", kendallCrit)
+		if s > kendallCrit {
+			fmt.Println("Мнения экспертов согласованны (S > критического значения)\n")
+		} else {
+			fmt.Println("Мнения экспертов несогласованны (S < критического значения)\n")
+		}
 	}
 
 	/*
-		crtMatrix1 := [][]float64{
-			{2, 1, 3, 4, 4, 5},
-			{9, 10, 5, 3, 5, 9},
-			{8, 4, 7, 3, 5, 1},
-			{1, 1, 2, 3, 3, 4},
+		normMatrix := fullNormalized(optMatrix)
+		fmt.Print("Нормализированные значения:\n")
+		for i := 0; i < len(normMatrix); i++ {
+			fmt.Printf("%.2f", normMatrix[i])
+			fmt.Print("\n")
 		}
-		crtMatrix2 := [][]float64{
-			{2, 1, 3, 4, 4, 5},
-			{7, 8, 7, 2, 7, 9},
-			{7, 3, 9, 6, 5, 3},
-			{1, 1, 2, 3, 3, 4},
-		}
-		crtMatrix3 := [][]float64{
-			{2, 1, 3, 4, 4, 5},
-			{5, 10, 2, 2, 3, 2},
-			{5, 2, 4, 7, 9, 2},
-			{1, 1, 2, 3, 3, 4},
-		}
-
-		fullMatrix := [][][]float64{crtMatrix1, crtMatrix2, crtMatrix3}
-	*/
-	optMatrix := [][]float64{
-		{175, 190, 150, 160, 120, 111},
-		{20, 10, 5, 14, 12, 9},
-		{1, 3, 3, 4, 5, 6},
-	}
-
-	//for i := range fullMatrix {
-	//	mainMatrix := fullMatrix[i]
-	//fmt.Println("Критерий №", i+1)
-	//fmt.Println(rankingTwoDimensional(mainMatrix))
-	resultRanking := rankingTwoDimensional(mainMatrix)
-	result := commonMatrix(mainMatrix)
-	fmt.Print("Ранжировка (1 критерий):\n")
-	for i := range result {
-		fmt.Println("Эксперт №", i+1, ":", resultRanking[i])
-	}
-	fmt.Println()
-	sumAlt := sumAlts(resultRanking)
-	for i, v := range sumAlt {
-		fmt.Println("Сумма ранга по альтернативе №", i+1, " = ", v)
-	}
-	fmt.Print("\nОбобщённые ранжировки:\n")
-	for i := range result {
-		fmt.Println("Эксперт №", i+1, ":", result[i])
-	}
-	fmt.Println("\nЗначения для расчёта медианы: ", pairComparison(result, 4), "\n")
-	fmt.Println("Итоговая компетентность экспертов: ")
-	koefComp := EvlanovKutuzov(resultRanking)
-	_, maxCompExp := MinMax(koefComp)
-	for i, v := range koefComp {
-		fmt.Print("Эксперт №", i+1, " : ", v)
-		if maxCompExp == v {
-			fmt.Print(" (наиболее компетентный эксперт)")
-		}
-		fmt.Println()
-	}
-	fmt.Print("\nГипотезы наличия корреляционной связи: \n")
-	matrixSpearman(mainMatrix)
-	kendalW, s := KendallW(mainMatrix)
-	fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\n")
-	//}
-	normMatrix := fullNormalized(optMatrix)
-	fmt.Print("Нормализированные значения:\n")
-	for i := 0; i < len(normMatrix); i++ {
-		fmt.Printf("%.2f", normMatrix[i])
+		ipArr, ip, i := idealPoint(normMatrix)
+		fmt.Println("\nРасстояние до идеальной точки: ", ip, "Альтернатива: ", i)
+		fmt.Print("Матрица всех расстояний ид.т: ")
+		fmt.Printf("%.2f", ipArr)
 		fmt.Print("\n")
-	}
-	ipArr, ip, i := idealPoint(normMatrix)
-	fmt.Println("\nРасстояние до идеальной точки: ", ip, "Альтернатива: ", i)
-	fmt.Print("Матрица всех расстояний ид.т: ")
-	fmt.Printf("%.2f", ipArr)
-	fmt.Print("\n")
-	aipArr, aip, ai := antiIdealPoint(normMatrix)
-	fmt.Println("Расстояние до антиидеальной точки: ", aip, "Альтернатива: ", ai)
-	fmt.Print("Матрица всех расстояний а.ид.т: ")
-	fmt.Printf("%.2f", aipArr)
-	fmt.Print("\n")
-	//fmt.Println(EvlanovKutuzov(resultRanking))
+		aipArr, aip, ai := antiIdealPoint(normMatrix)
+		fmt.Println("Расстояние до антиидеальной точки: ", aip, "Альтернатива: ", ai)
+		fmt.Print("Матрица всех расстояний а.ид.т: ")
+		fmt.Printf("%.2f", aipArr)
+		fmt.Print("\n")
+		//fmt.Println(EvlanovKutuzov(resultRanking))
+
+	*/
 
 }
