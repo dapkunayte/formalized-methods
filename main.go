@@ -138,7 +138,7 @@ func KendallW(mainMatrix [][]float64) (kendallw float64, s float64, kendallCrit 
 		sumCRank += sf
 	}
 
-	rankMatrix := rankingTwoDimensional(mainMatrix)
+	rankMatrix := rankingTwoDimensional(mainMatrix, true)
 
 	for i := 0; i < len(rankMatrix[0]); i++ {
 		for j := 0; j < len(rankMatrix); j++ {
@@ -154,9 +154,16 @@ func KendallW(mainMatrix [][]float64) (kendallw float64, s float64, kendallCrit 
 	return 12 * s / down, s, kendallCrit
 }
 
-func rankingTwoDimensional(mainMatrix [][]float64) [][]float64 {
+func rankingTwoDimensional(mainMatrix [][]float64, max10 bool) [][]float64 {
 	n := len(mainMatrix)    //4
 	m := len(mainMatrix[1]) //6
+	if max10 {
+		for i := 0; i < n; i++ {
+			for j := 0; j < m; j++ {
+				mainMatrix[i][j] = math.Abs(mainMatrix[i][j] - 10)
+			}
+		}
+	}
 	rankMatrix := make([][]float64, n)
 	for i := 0; i < n; i++ {
 		rankMatrix[i] = make([]float64, m)
@@ -529,7 +536,7 @@ func main() {
 	for p := range fullMatrix {
 		mainMatrix := fullMatrix[p]
 		fmt.Println("Критерий №", p+1)
-		resultRanking := rankingTwoDimensional(mainMatrix)
+		resultRanking := rankingTwoDimensional(mainMatrix, true)
 		//если 10 - максимальная оценка, то в функцию commonMatrix нужно отправить true
 		result := commonMatrix(mainMatrix, true)
 		fmt.Print("Ранжировка (1 критерий):\n")
