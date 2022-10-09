@@ -209,7 +209,7 @@ func sumAlts(matrix [][]float64) []float64 {
 	return sumAltsArr
 }
 
-func commonMatrix(mainMatrix [][]float64) [][][]int {
+func commonMatrix(mainMatrix [][]float64, max10 bool) [][][]int {
 	n := len(mainMatrix)    //4
 	m := len(mainMatrix[1]) //6
 
@@ -227,11 +227,19 @@ func commonMatrix(mainMatrix [][]float64) [][][]int {
 			//fmt.Println("/////////")
 			for j := 0; j < m; j++ {
 				if mainMatrix[p][i] > mainMatrix[p][j] {
-					compMatrix[p][i][j] = 1
+					if max10 {
+						compMatrix[p][i][j] = -1
+					} else {
+						compMatrix[p][i][j] = 1
+					}
 					//fmt.Println(1)
 				}
 				if mainMatrix[p][i] < mainMatrix[p][j] {
-					compMatrix[p][i][j] = -1
+					if max10 {
+						compMatrix[p][i][j] = 1
+					} else {
+						compMatrix[p][i][j] = -1
+					}
 					//fmt.Println(-1)
 				}
 				if mainMatrix[p][i] == mainMatrix[p][j] {
@@ -522,7 +530,8 @@ func main() {
 		mainMatrix := fullMatrix[p]
 		fmt.Println("Критерий №", p+1)
 		resultRanking := rankingTwoDimensional(mainMatrix)
-		result := commonMatrix(mainMatrix)
+		//если 10 - максимальная оценка, то в функцию commonMatrix нужно отправить true
+		result := commonMatrix(mainMatrix, true)
 		fmt.Print("Ранжировка (1 критерий):\n")
 		for i := range result {
 			fmt.Println("Эксперт №", i+1, ":", resultRanking[i])
