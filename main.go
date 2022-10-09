@@ -320,9 +320,11 @@ func matrixSpearman(mainMatrix [][]float64) {
 		for j := i + 1; j < len(mainMatrix); j++ {
 			value, pValue := Spearman(mainMatrix[i], mainMatrix[j])
 			if pValue < 0.05 {
+				fmt.Print("э", i+1, "/э", j+1, " ")
 				fmt.Printf("%.4f", value)
 				fmt.Println(" | отвергается гипотеза об отсутствии корр. связи")
 			} else {
+				fmt.Print("э", i+1, "/э", j+1, " ")
 				fmt.Printf("%.4f", value)
 				fmt.Println(" | подтверждается гипотеза об отсутствии корр. связи")
 			}
