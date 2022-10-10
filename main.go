@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/aclements/go-moremath/mathx"
+	"github.com/go-echarts/go-echarts/v2/charts"
+	"github.com/go-echarts/go-echarts/v2/opts"
 	"math"
+	"os"
 	"sort"
 )
 
@@ -486,6 +489,81 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 	return kArr
 }
 
+func LessSquare(x, y []float64) []float64 {
+	f := func(a, x, b float64) float64 { return a*x + b }
+	yNew := make([]float64, len(y))
+	n := float64(len(y))
+	var a, b float64
+	var sumXY, sumX, sumY, sumXSqr float64
+	for i := 0; i < len(y); i++ {
+		sumXY += x[i] * y[i]
+		sumY += y[i]
+		sumX += x[i]
+		sumXSqr += x[i] * x[i]
+	}
+	a = (n*sumXY - sumX*sumY) / (n*sumXSqr - sumX*sumX)
+	b = (sumY - a*sumX) / n
+	for i := 0; i < len(y); i++ {
+		yNew[i] = f(a, x[i], b)
+	}
+	return yNew
+}
+
+func SmoothMean3(x, y []float64) []float64 {
+	yNew := make([]float64, len(y)-2)
+	xNew := make([]float64, len(x)-2)
+	m := make([]float64, len(x)-2)
+	for i := 0; i < len(xNew); i++ {
+		xNew[i] = x[i] + 1
+		m[i] = (y[i] + y[i+1] + y[i+2]) / 3
+	}
+	for i := 0; i < len(yNew); i++ {
+		yNew[i] = m[i] + 1/3*(y[i+1]-y[i])
+	}
+	return yNew
+}
+
+/*func ExponentialSmooth(x,y []float64, a float64) []float64{
+	s1 := make([]float64,len(y))
+	st := 0.0
+	for t:=0;t<len(s1);t++ {
+		for i := 0; i < len(y); i++ {
+			st += math.Pow(1-a, float64(i)) * y[]
+		}
+	}
+}
+
+*/
+
+func DrawLines(x, y, yNew []float64, name string, mean3 bool) {
+	line := charts.NewLine()
+	// set some global options like Title/Legend/ToolTip or anything else
+	items1 := make([]opts.LineData, len(y))
+	items2 := make([]opts.LineData, len(y))
+	for i := 0; i < len(y); i++ {
+		items1[i] = opts.LineData{Value: y[i]}
+	}
+	for i := 0; i < len(yNew); i++ {
+		items2[i] = opts.LineData{Value: yNew[i]}
+	}
+	x2 := x[1 : len(x)-1]
+	// Put data into instance
+	if mean3 {
+		line.SetXAxis(x2).
+			AddSeries("Category A", items1[1:len(y)-1]).
+			AddSeries("Category B", items2).
+			SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: false}))
+	} else {
+		line.SetXAxis(x).
+			AddSeries("Category A", items1).
+			AddSeries("Category B", items2).
+			SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: false}))
+	}
+
+	f, _ := os.Create(name)
+	line.Render(f)
+}
+
 func main() {
 	/*
 		{2, 1, 1, 1},
@@ -576,6 +654,12 @@ func main() {
 		}
 	}
 
+	x := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	y := []float64{490, 477, 430, 399, 383, 357, 278, 205, 182, 214, 206, 192, 186, 188, 190}
+	yNew := LessSquare(x, y)
+	yNewMean := SmoothMean3(x, y)
+	DrawLines(x, y, yNew, "bar.html", false)
+	DrawLines(x, y, yNewMean, "bar1.html", true)
 	/*
 		normMatrix := fullNormalized(optMatrix)
 		fmt.Print("Нормализированные значения:\n")
