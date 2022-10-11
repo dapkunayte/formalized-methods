@@ -490,11 +490,11 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 }
 
 func LessSquare(x, y []float64) ([]float64, []float64) {
-	f := func(a, x, b float64) float64 { return a*x + b }
+	f := func(a, x, b float64) float64 { return a + x*b }
 	yNew := make([]float64, len(y))
 	predict := make([]float64, 3)
 	n := float64(len(y))
-	var a, b float64
+	//var a, b float64
 	var sumXY, sumX, sumY, sumXSqr float64
 	for i := 0; i < len(y); i++ {
 		sumXY += x[i] * y[i]
@@ -502,14 +502,17 @@ func LessSquare(x, y []float64) ([]float64, []float64) {
 		sumX += x[i]
 		sumXSqr += x[i] * x[i]
 	}
-	a = (n*sumXY - sumX*sumY) / (n*sumXSqr - sumX*sumX)
-	b = (sumY - a*sumX) / n
+	matrix := [][]float64{
+		{n, sumX, sumY},
+		{sumX, sumXSqr, sumXY},
+	}
+	ans := GaussMehtodforSqr(matrix)
 	for i := 0; i < len(y); i++ {
-		yNew[i] = f(a, x[i], b)
+		yNew[i] = f(ans[0], x[i], ans[1])
 	}
 	k := 1
 	for i := 0; i < 3; i++ {
-		predict[i] = f(a, float64(len(x)+k), b)
+		predict[i] = f(ans[0], float64(len(x)+k), ans[1])
 		k++
 	}
 	return yNew, predict
@@ -531,91 +534,49 @@ func SmoothMean3(x, y []float64) []float64 {
 
 func ExponentialSmooth(x, y []float64, a float64) ([]float64, []float64) {
 
-	s0 := 0.0
-	for i := 0; i < len(y); i++ {
-		s0 += y[i]
-	}
-	s0 = y[0]
-	//predict_value := s0 / float64(len(y))
-	predict_value := s0
-	yNew := make([]float64, len(y))
-	var fact_value float64
-	for i, v := range y {
-		fact_value = v
-		predict_value = a*fact_value + (1-a)*predict_value
-		yNew[i] = predict_value
-	}
-
-	//yNew := make([]float64, len(y))
 	n := float64(len(y))
 	var sumXY, sumX, sumY, sumXSqr float64
-	var a0, a1 float64
+
 	for i := 0; i < len(y); i++ {
 		sumXY += x[i] * y[i]
 		sumY += y[i]
 		sumX += x[i]
 		sumXSqr += x[i] * x[i]
 	}
-	a0 = (n*sumXY - sumX*sumY) / (n*sumXSqr - sumX*sumX)
-	a1 = (sumY - a*sumX) / n
+	matrix := [][]float64{
+		{n, sumX, sumY},
+		{sumX, sumXSqr, sumXY},
+	}
+	ans := GaussMehtodforSqr(matrix)
+
 	s1 := make([]float64, len(y))
 	s2 := make([]float64, len(y))
-	s1[0] = a0 - ((1-a)/a)*a1
-	s2[0] = a0 - (2*(1-a)/a)*a1
+	s1[0] = ans[0] - ((1-a)/a)*ans[1]
+	s2[0] = ans[0] - (2*(1-a)/a)*ans[1]
 	for i := 1; i < len(s1); i++ {
-		s1[i] = a*y[i-1] + (1-a)*s1[i-1]
+		s1[i] = a*y[i] + (1-a)*s1[i-1]
 		s2[i] = a*s1[i] + (1-a)*s2[i-1]
 	}
-	//fmt.Println(s1, s2)
+
 	f := func(a, x, b float64) float64 { return a + x*b }
 	predict := make([]float64, 3)
-	for i := 0; i < len(predict); i++ {
-		a0New := 2*s1[len(y)-1-i] - s2[len(y)-1-i]
-		a1New := (a / (1 - a)) * (s1[len(y)-1-i] - s2[len(y)-1-i])
-		predict[i] = f(a0New, float64(i+1), a1New)
+	yNew := make([]float64, len(y))
+	for i := 0; i < len(y); i++ {
+		a0New := 2*s1[i] - s2[i]
+		a1New := (a / (1 - a)) * (s1[i] - s2[i])
+		yNew[i] = a0New + a1New
+		//fmt.Println(a0New, a1New)
 	}
-	/*
-		for i := 0; i < len(y); i++ {
-			yNew[i] = f(a, x[i], a1)
-		}
+	k := 2
+	for i := 0; i < len(predict); i++ {
+		a0New := 2*s1[len(y)-1] - s2[len(y)-1]
+		a1New := (a / (1 - a)) * (s1[len(y)-1] - s2[len(y)-1])
+		predict[i] = f(a0New, float64(len(x)+k), a1New)
+		k++
+	}
 
-	*/
 	return yNew, predict
 }
-
-/*
-func ExpPredict(x, y []float64, a float64) []float64 {
-	n := float64(len(y))
-	var sumXY, sumX, sumY, sumXSqr float64
-	var a0, a1 float64
-	for i := 0; i < len(y); i++ {
-		sumXY += x[i] * y[i]
-		sumY += y[i]
-		sumX += x[i]
-		sumXSqr += x[i] * x[i]
-	}
-	a0 = (n*sumXY - sumX*sumY) / (n*sumXSqr - sumX*sumX)
-	a1 = (sumY - a*sumX) / n
-	s1 := make([]float64, len(y))
-	s2 := make([]float64, len(y))
-	s1[0] = a0 - ((1-a)/a)*a1
-	s2[0] = a0 - (2*(1-a)/a)*a1
-	for i := 1; i < len(s1); i++ {
-		s1[i] = a*y[i-1] + (1-a)*s1[i-1]
-		s2[i] = a*s1[i] + (1-a)*s2[i-1]
-	}
-	//fmt.Println(s1, s2)
-	f := func(a, x, b float64) float64 { return a + x*b }
-	predict := make([]float64, 3)
-	for i := 0; i < len(predict); i++ {
-		a0New := 2*s1[len(y)-1-i] - s2[len(y)-1-i]
-		a1New := (a / (1 - a)) * (s1[len(y)-1-i] - s2[len(y)-1-i])
-		predict[i] = f(a0New, float64(i+1), a1New)
-	}
-	return predict
-}
-
-*/
 
 func LessSquareSqr(x, y []float64) ([]float64, []float64) {
 	yNew := make([]float64, len(y))
@@ -697,7 +658,6 @@ func DrawLines(x, y, yNew []float64, name string, method string) {
 		items2[i] = opts.LineData{Value: yNew[i]}
 	}
 	x2 := x[1 : len(x)-1]
-	x3 := x[1:]
 	// Put data into instance
 	switch method {
 	case "mean3":
@@ -711,8 +671,8 @@ func DrawLines(x, y, yNew []float64, name string, method string) {
 			AddSeries("Category B", items2).
 			SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: false}))
 	case "exp":
-		line.SetXAxis(x3).
-			AddSeries("Category A", items1[1:]).
+		line.SetXAxis(x).
+			AddSeries("Category A", items1).
 			AddSeries("Category B", items2).
 			SetSeriesOptions(charts.WithLineChartOpts(opts.LineChart{Smooth: false}))
 	}
@@ -821,6 +781,7 @@ func main() {
 		fmt.Printf("%.3f", v)
 		fmt.Println()
 	}
+	fmt.Println(yNew)
 	fmt.Println()
 	yNewMean := SmoothMean3(x, y)
 	yNewSqr, predictSqr := LessSquareSqr(x, y)
@@ -843,7 +804,7 @@ func main() {
 	DrawLines(x, y, yNewMean, "bar1.html", "mean3")
 	DrawLines(x, y, yNewSqr, "bar2.html", "lsq")
 	DrawLines(x, y, yNewExp, "bar3.html", "exp")
-
+	//fmt.Println(yNewExp)
 	/*
 		normMatrix := fullNormalized(optMatrix)
 		fmt.Print("Нормализированные значения:\n")
