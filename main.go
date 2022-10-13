@@ -21,22 +21,22 @@ func main() {
 	*/
 
 	crtMatrix1 := [][]float64{
-		{8, 10, 5, 2, 3, 8},
-		{9, 10, 5, 3, 5, 9},
-		{8, 4, 7, 3, 5, 1},
-		{9, 10, 7, 5, 6, 9},
+		{3, 4, 5, 0, 5, 6},
+		{2, 7, 4, 1, 5, 7},
+		{4, 6, 3, 0, 4, 6},
+		{2, 7, 5, 0, 6, 4},
 	}
 	crtMatrix2 := [][]float64{
-		{5, 7, 5, 6, 5, 6},
-		{7, 8, 7, 2, 7, 9},
-		{7, 3, 9, 6, 5, 3},
-		{6, 8, 8, 9, 8, 7},
+		{8, 6, 5, 2, 8, 4},
+		{7, 7, 5, 1, 6, 3},
+		{8, 4, 4, 3, 5, 4},
+		{9, 6, 3, 1, 7, 3},
 	}
 	crtMatrix3 := [][]float64{
-		{5, 10, 2, 2, 5, 8},
-		{5, 10, 2, 2, 3, 2},
-		{5, 2, 4, 7, 9, 2},
-		{10, 9, 6, 6, 7, 5},
+		{2, 2, 4, 3, 3, 4},
+		{3, 2, 8, 5, 4, 5},
+		{2, 3, 8, 6, 2, 6},
+		{3, 4, 7, 5, 4, 6},
 	}
 
 	fullMatrix := [][][]float64{crtMatrix1, crtMatrix2, crtMatrix3}
@@ -70,7 +70,7 @@ func main() {
 		}
 		fmt.Println("\nЗначения для расчёта медианы: ", expert.PairComparison(result, 4), "\n")
 		fmt.Println("Итоговая компетентность экспертов: ")
-		koefComp := expert.EvlanovKutuzov(resultRanking)
+		koefComp := expert.EvlanovKutuzov(mainMatrix)
 		_, maxCompExp := expert.MinMax(koefComp)
 		for i, v := range koefComp {
 			fmt.Print("Эксперт №", i+1, " : ", v)

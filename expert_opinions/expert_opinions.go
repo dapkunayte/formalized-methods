@@ -385,12 +385,13 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 		for i := range avgRanks {
 			if e < math.Abs(avgRanks[i]-avgRanks1[i]) {
 				k++
-				if k == len(avgRanks)-1 {
+				if k == len(avgRanks) {
 					end = false
 				}
 			}
 		}
 	}
+
 	return kArr
 }
 
