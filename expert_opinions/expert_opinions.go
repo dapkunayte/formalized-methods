@@ -356,25 +356,35 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 		avgCompMatrix[i] = make([]float64, numAlt)
 	}
 
-	var end = true //условие останова
-
+	var end = true                              //условие останова
 	avgRanks1 := make([]float64, len(sumRanks)) //второй массив средних оценок для проверки останова
-
+	z := 0
 	for end == true {
-		for i, v := range sumRanks {
-			avgRanks[i] = v / float64(len(rankMatrix))
-			normCoefArr[i] = avgRanks[i] * v
-			normCoef += normCoefArr[i]
+		if z == 0 {
+			for i, v := range sumRanks {
+				avgRanks[i] = v / float64(len(rankMatrix))
+				normCoefArr[i] = avgRanks[i] * v
+				normCoef += normCoefArr[i]
+				z++
+			}
+		} else {
+			//fmt.Println(avgRanks)
+			for i, v := range sumRanks {
+				normCoefArr[i] = avgRanks[i] * v
+				normCoef += normCoefArr[i]
+				if i < numCrit {
+					kArr[i] = 0
+				}
+			}
 		}
-		//fmt.Println(normCoef)
+
 		for i := 0; i < len(rankMatrix); i++ {
 			for j := 0; j < len(rankMatrix[0]); j++ {
 				koefCompMatrix[i][j] = rankMatrix[i][j] * avgRanks[j]
 				kArr[i] += koefCompMatrix[i][j]
 			}
-			kArr[i] = kArr[i] * (1 / normCoef)
+			kArr[i] = (1 / normCoef) * kArr[i]
 		}
-
 		for i := 0; i < numCrit; i++ {
 			for j := 0; j < numAlt; j++ {
 				avgCompMatrix[i][j] = rankMatrix[i][j] * kArr[i]
@@ -383,15 +393,23 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 		}
 		k := 0
 		for i := range avgRanks {
-			if e < math.Abs(avgRanks[i]-avgRanks1[i]) {
+			//fmt.Println(avgRanks[i], avgRanks1[i])
+			if e > math.Abs(avgRanks[i]-avgRanks1[i]) {
 				k++
-				if k == len(avgRanks) {
+				if k == len(avgRanks)-1 {
 					end = false
 				}
 			}
 		}
-	}
+		//fmt.Println(avgRanks)
+		//fmt.Println(avgRanks1)
+		for i := 0; i < len(avgRanks); i++ {
+			avgRanks[i] = avgRanks1[i]
+			avgRanks1[i] = 0
+		}
 
+		normCoef = 0
+	}
 	return kArr
 }
 

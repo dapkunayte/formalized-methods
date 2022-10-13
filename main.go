@@ -4,50 +4,45 @@ import (
 	expert "ffmraz/expert_opinions"
 	plot "ffmraz/plots"
 	predict "ffmraz/predictions"
+
 	//decisions "ffmraz/decisions"
 	"fmt"
 )
 
 func main() {
-
 	/*
-		mainMatrix := [][]float64{
+		mainMatrix1 := [][]float64{
 			{2, 1, 3, 4, 4, 5},
 			{1, 2, 2, 3, 4, 5},
 			{1, 1, 1, 3, 2, 4},
 			{1, 1, 2, 3, 3, 4},
 			//{3, 1, 3, 4, 3, 2},
 		}
+		r := expert.RankingTwoDimensional(mainMatrix1, false)
+		fmt.Println(expert.EvlanovKutuzov(r))
+
 	*/
 
 	crtMatrix1 := [][]float64{
-		{3, 4, 5, 0, 5, 6},
-		{2, 7, 4, 1, 5, 7},
-		{4, 6, 3, 0, 4, 6},
-		{2, 7, 5, 0, 6, 4},
+		{8, 10, 5, 2, 3, 8},
+		{9, 10, 5, 3, 5, 9},
+		{8, 4, 7, 3, 5, 1},
+		{9, 10, 7, 5, 6, 9},
 	}
 	crtMatrix2 := [][]float64{
-		{8, 6, 5, 2, 8, 4},
-		{7, 7, 5, 1, 6, 3},
-		{8, 4, 4, 3, 5, 4},
-		{9, 6, 3, 1, 7, 3},
+		{5, 7, 5, 6, 5, 6},
+		{7, 8, 7, 2, 7, 9},
+		{7, 3, 9, 6, 5, 3},
+		{6, 8, 8, 9, 8, 7},
 	}
 	crtMatrix3 := [][]float64{
-		{2, 2, 4, 3, 3, 4},
-		{3, 2, 8, 5, 4, 5},
-		{2, 3, 8, 6, 2, 6},
-		{3, 4, 7, 5, 4, 6},
+		{5, 10, 2, 2, 5, 8},
+		{5, 10, 2, 2, 3, 2},
+		{5, 2, 4, 7, 9, 2},
+		{10, 9, 6, 6, 7, 5},
 	}
 
 	fullMatrix := [][][]float64{crtMatrix1, crtMatrix2, crtMatrix3}
-	/*
-		optMatrix := [][]float64{
-			{175, 190, 150, 160, 120, 111},
-			{20, 10, 5, 14, 12, 9},
-			{1, 3, 3, 4, 5, 6},
-		}
-
-	*/
 
 	for p := range fullMatrix {
 		mainMatrix := fullMatrix[p]
@@ -70,7 +65,7 @@ func main() {
 		}
 		fmt.Println("\nЗначения для расчёта медианы: ", expert.PairComparison(result, 4), "\n")
 		fmt.Println("Итоговая компетентность экспертов: ")
-		koefComp := expert.EvlanovKutuzov(mainMatrix)
+		koefComp := expert.EvlanovKutuzov(resultRanking)
 		_, maxCompExp := expert.MinMax(koefComp)
 		for i, v := range koefComp {
 			fmt.Print("Эксперт №", i+1, " : ", v)
@@ -131,7 +126,7 @@ func main() {
 	plot.DrawLines(x, y, yNewSqr, "bar2.html", "lsq")
 	plot.DrawLines(x, y, yNewExp, "bar3.html", "exp")
 	plot.DrawLines(x, y, yNewExpSqr, "bar4.html", "exp")
-	//fmt.Println(yNewExp)
+
 	/*
 		normMatrix := fullNormalized(optMatrix)
 		fmt.Print("Нормализированные значения:\n")
@@ -152,6 +147,7 @@ func main() {
 		//fmt.Println(EvlanovKutuzov(resultRanking))
 
 	*/
+
 	fmt.Println()
 	fmt.Println("Ошибки для линейного мнк: ")
 	errsLSQ := predict.Errors(y, yNew, x, 2)
@@ -176,4 +172,5 @@ func main() {
 	for k, v := range errsExpSqr {
 		fmt.Println(k, ": ", v)
 	}
+
 }
