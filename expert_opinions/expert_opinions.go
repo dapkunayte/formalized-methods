@@ -381,10 +381,13 @@ func EvlanovKutuzov(rankMatrix [][]float64) []float64 {
 				avgRanks1[j] += avgCompMatrix[i][j]
 			}
 		}
-
+		k := 0
 		for i := range avgRanks {
 			if e < math.Abs(avgRanks[i]-avgRanks1[i]) {
-				end = false
+				k++
+				if k == len(avgRanks)-1 {
+					end = false
+				}
 			}
 		}
 	}
