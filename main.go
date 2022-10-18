@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ffmraz/decisions"
 	expert "ffmraz/expert_opinions"
 	plot "ffmraz/plots"
 	predict "ffmraz/predictions"
@@ -171,6 +172,49 @@ func main() {
 	errsExpSqr := predict.Errors(y, yNewExpSqr, x, 3)
 	for k, v := range errsExpSqr {
 		fmt.Println(k, ": ", v)
+	}
+
+	z1 := [][]float64{
+		{1, 0.541566065, 0.061842549, 0.870458937, 0},
+		{0.728254671, 0.582059749, 0.024211536, 0, 1},
+		{1, 0.511876922, 0.051906008, 0.760278934, 0},
+	}
+
+	w := []float64{1, 1, 1}
+
+	normMatrix := decisions.FullNormalized(z1)
+	fmt.Print("Нормализированные значения:\n")
+	for i := 0; i < len(normMatrix); i++ {
+		fmt.Printf("%.2f", normMatrix[i])
+		fmt.Print("\n")
+	}
+	ipArr, ip, i := decisions.IdealPoint(normMatrix, w)
+	fmt.Println("\nРасстояние до идеальной точки: ", ip, ", Альтернатива: ", i)
+	fmt.Print("Матрица всех расстояний ид.т: ")
+	fmt.Printf("%.2f", ipArr)
+	fmt.Print("\n")
+	aipArr, aip, ai := decisions.AntiIdealPoint(normMatrix, w)
+	fmt.Println("Расстояние до антиидеальной точки: ", aip, ", Альтернатива: ", ai)
+	fmt.Print("Матрица всех расстояний а.ид.т: ")
+	fmt.Printf("%.2f", aipArr)
+	fmt.Print("\n")
+	abMatr, abp, ab := decisions.Absolute(normMatrix, w)
+	fmt.Println("Принцип абсолютной уступки: ", abp, ", Альтернатива: ", ab)
+	fmt.Print("Матрица: ")
+	fmt.Printf("%.2f", abMatr)
+	fmt.Print("\n")
+	reMatr, rebp, rb := decisions.Relate(normMatrix, w)
+	fmt.Println("Принцип относительной уступки: ", rebp, ", Альтернатива: ", rb)
+	fmt.Print("Матрица: ")
+	fmt.Printf("%.2f", reMatr)
+	fmt.Print("\n")
+
+	p := []float64{0.3, 0.15, 0.55}
+	zz := [][]float64{
+		{0.8, 0.7, 0.8},
+		{0.9, 0.5, 0.8},
+		{0.7, 0.6, 0.7},
+		{0.9, 0.8, 0.8},
 	}
 
 }
