@@ -1,6 +1,8 @@
 package decisions
 
-import "math"
+import (
+	"math"
+)
 
 type Point struct {
 	X float64
@@ -38,7 +40,6 @@ func FullNormalized(optMatrix [][]float64) [][]float64 {
 	return normMatrix
 }
 
-/* old
 func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
@@ -70,9 +71,7 @@ func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	}
 	return ipArr, ip, alt
 }
-*/
 
-/*
 func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
@@ -104,11 +103,10 @@ func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, in
 	}
 	return ipArr, ip, alt
 }
-*/
 
 func sqr(x float64) float64 { return x * x }
 
-func Absolute(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func AbsoluteXYZ(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	absoluteMatrix := make([]float64, numAlt)
@@ -154,7 +152,7 @@ func Relate(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	return relateMatrix, reMax, alt
 }
 
-func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func IdealPointXYZ(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	idealPointMatrix := make([]float64, numAlt)
@@ -181,7 +179,7 @@ func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	return idealPointMatrix, ip, alt
 }
 
-func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func AntiIdealPointXYZ(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	antiIdealPointMatrix := make([]float64, numAlt)
@@ -206,6 +204,77 @@ func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, in
 		}
 	}
 	return antiIdealPointMatrix, aip, alt
+}
+
+func AbsoluteСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+
+	numCrit := len(normMatrix)
+	numAlt := len(normMatrix[0])
+	absoluteMatrix := make([][]float64, numCrit)
+
+	for i := 0; i < numCrit; i++ {
+		absoluteMatrix[i] = make([]float64, numAlt)
+	}
+
+	for i := 0; i < numCrit; i++ {
+		for j := 0; j < numAlt; j++ {
+			absoluteMatrix[i][j] = w[i] * normMatrix[i][j]
+		}
+
+	}
+	//abRow := decisionsAp.RowToCol(absoluteMatrix)
+
+	abArr := make([]float64, numAlt)
+	for j := 0; j < numAlt; j++ {
+		for i := 0; i < numCrit; i++ {
+			//fmt.Println(idealPointMatrix[i])
+			abArr[j] += absoluteMatrix[i][j]
+		}
+	}
+
+	_, abMax := MinMax(abArr)
+	alt := 0
+	for i, v := range abArr {
+		if v == abMax {
+			alt = i + 1
+		}
+	}
+	return abArr, abMax, alt
+}
+
+func RelateСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+	numCrit := len(normMatrix)
+	numAlt := len(normMatrix[0])
+	relateMatrix := make([][]float64, numCrit)
+
+	for i := 0; i < numCrit; i++ {
+		relateMatrix[i] = make([]float64, numAlt)
+	}
+
+	for i := 0; i < numCrit; i++ {
+		for j := 0; j < numAlt; j++ {
+			relateMatrix[i][j] = math.Pow(normMatrix[i][j], w[i])
+		}
+	}
+	//fmt.Println(relateMatrix)
+	//abRow := decisionsAp.RowToCol(absoluteMatrix)
+	reArr := make([]float64, numAlt)
+	for j := 0; j < numAlt; j++ {
+		reArr[j] = 1
+		for i := 0; i < numCrit; i++ {
+			//fmt.Println(relateMatrix[i][j])
+			reArr[j] *= relateMatrix[i][j]
+			//fmt.Println(reArr[j])
+		}
+	}
+	_, reMax := MinMax(reArr)
+	alt := 0
+	for i, v := range reArr {
+		if v == reMax {
+			alt = i + 1
+		}
+	}
+	return reArr, reMax, alt
 }
 
 func MinMax(array []float64) (float64, float64) {

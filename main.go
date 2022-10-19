@@ -2,6 +2,8 @@ package main
 
 import (
 	"ffmraz/decisions"
+	decisionsAp "ffmraz/decisionsAp"
+	//"ffmraz/decisionsAp"
 	expert "ffmraz/expert_opinions"
 	plot "ffmraz/plots"
 	predict "ffmraz/predictions"
@@ -198,12 +200,12 @@ func main() {
 	fmt.Print("Матрица всех расстояний а.ид.т: ")
 	fmt.Printf("%.2f", aipArr)
 	fmt.Print("\n")
-	abMatr, abp, ab := decisions.Absolute(normMatrix, w)
+	abMatr, abp, ab := decisions.AbsoluteСoncession(normMatrix, w)
 	fmt.Println("Принцип абсолютной уступки: ", abp, ", Альтернатива: ", ab)
 	fmt.Print("Матрица: ")
 	fmt.Printf("%.2f", abMatr)
 	fmt.Print("\n")
-	reMatr, rebp, rb := decisions.Relate(normMatrix, w)
+	reMatr, rebp, rb := decisions.RelateСoncession(normMatrix, w)
 	fmt.Println("Принцип относительной уступки: ", rebp, ", Альтернатива: ", rb)
 	fmt.Print("Матрица: ")
 	fmt.Printf("%.2f", reMatr)
@@ -216,5 +218,49 @@ func main() {
 		{0.7, 0.6, 0.7},
 		{0.9, 0.8, 0.8},
 	}
+	zz2 := [][]float64{
+		{0.7, 0.7, 0.6},
+		{0.8, 0.7, 0.8},
+		{0.7, 0.7, 0.7},
+		{0.9, 0.8, 0.9},
+	}
+	zz3 := [][]float64{
+		{0.8, 0.7, 0.8},
+		{0.6, 0.5, 0.6},
+		{0.7, 0.6, 0.7},
+		{0.5, 0.4, 0.5},
+	}
+	zz4 := [][]float64{
+		{0.6, 0.4, 0.5},
+		{0.9, 0.7, 0.9},
+		{0.6, 0.5, 0.6},
+		{0.8, 0.7, 0.8},
+	}
+
+	b1 := decisionsAp.Bl(zz, p)
+	s1 := decisionsAp.Std(zz, p)
+	c := decisionsAp.ConvolutionStdBl(b1, s1)
+
+	b2 := decisionsAp.Bl(zz2, p)
+	s2 := decisionsAp.Std(zz2, p)
+	c2 := decisionsAp.ConvolutionStdBl(b2, s2)
+
+	b3 := decisionsAp.Bl(zz3, p)
+	s3 := decisionsAp.Std(zz3, p)
+	c3 := decisionsAp.ConvolutionStdBl(b3, s3)
+
+	b4 := decisionsAp.Bl(zz4, p)
+	s4 := decisionsAp.Std(zz4, p)
+	c4 := decisionsAp.ConvolutionStdBl(b4, s4)
+
+	cArr := [][][]float64{c, c2, c3, c4}
+
+	decisionsAp.IdealPointAp(cArr)
+
+	//cRow := decisionsAp.RowToCol(c)
+
+	//maxArr := decisionsAp.MaxInConvolution(cRow)
+
+	//fmt.Println(maxArr)
 
 }
