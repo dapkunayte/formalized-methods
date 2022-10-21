@@ -129,7 +129,7 @@ func AbsoluteXYZ(normMatrix [][]float64, w []float64) ([]float64, float64, int) 
 	return absoluteMatrix, abMax, alt
 }
 
-func Relate(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func RelateXYZ(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	relateMatrix := make([]float64, numAlt)

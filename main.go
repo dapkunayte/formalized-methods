@@ -255,8 +255,29 @@ func main() {
 
 	cArr := [][][]float64{c, c2, c3, c4}
 
-	decisionsAp.IdealPointAp(cArr)
+	ipAp := decisionsAp.IdealPointAp(cArr)
+	reAp := decisionsAp.RealteСoncessionAp(cArr)
+	abAp := decisionsAp.AbsoluteСoncessionAp(cArr)
+	aipAp := decisionsAp.AntiIdealPointAp(cArr)
+	fmt.Println(ipAp[0])
+	fmt.Println(reAp[0])
+	fmt.Println(abAp[0])
+	fmt.Println(aipAp[0])
 
+	z10_1 := decisionsAp.Z10(zz)
+	z10_2 := decisionsAp.Z10(zz2)
+	z10_3 := decisionsAp.Z10(zz3)
+	z10_4 := decisionsAp.Z10(zz4)
+
+	zI_1 := decisionsAp.ZI(c, z10_1)
+	zI_2 := decisionsAp.ZI(c2, z10_2)
+	zI_3 := decisionsAp.ZI(c3, z10_3)
+	zI_4 := decisionsAp.ZI(c4, z10_4)
+
+	zIArr := [][][]float64{zI_1, zI_2, zI_3, zI_4}
+
+	zIpAp := decisionsAp.IdealPointAp(zIArr)
+	fmt.Println(zIpAp[4])
 	//cRow := decisionsAp.RowToCol(c)
 
 	//maxArr := decisionsAp.MaxInConvolution(cRow)
