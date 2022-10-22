@@ -3,6 +3,8 @@ package main
 import (
 	"ffmraz/decisions"
 	decisionsAp "ffmraz/decisionsAp"
+	"ffmraz/fuzzySets"
+
 	//"ffmraz/decisionsAp"
 	expert "ffmraz/expert_opinions"
 	plot "ffmraz/plots"
@@ -280,8 +282,26 @@ func main() {
 	fmt.Println(zIpAp[4])
 	//cRow := decisionsAp.RowToCol(c)
 
-	//maxArr := decisionsAp.MaxInConvolution(cRow)
+	abc := [][]float64{
+		{0, 0.3, 0.7, 0.9, 1},
+		{1, 0.7, 0.3, 0.1, 0},
+		{0, 0.1, 0.3, 0.7, 1},
+		{0, 0.01, 0.09, 0.49, 1},
+	}
 
-	//fmt.Println(maxArr)
+	_, cnvRm := fuzzySets.Rm(abc)
+	_, cnvRa := fuzzySets.Ra(abc)
+	_, cnvRb := fuzzySets.Rb(abc)
+	_, cnvRgg := fuzzySets.Rgg(abc)
+	_, cnvRss := fuzzySets.Rss(abc)
+	_, cnvRsg := fuzzySets.Rsg(abc)
+	_, cnvRgs := fuzzySets.Rgs(abc)
+	fmt.Println(cnvRm)
+	fmt.Println(cnvRa)
+	fmt.Println(cnvRb)
+	fmt.Println(cnvRgg)
+	fmt.Println(cnvRss)
+	fmt.Println(cnvRsg)
+	fmt.Println(cnvRgs)
 
 }
