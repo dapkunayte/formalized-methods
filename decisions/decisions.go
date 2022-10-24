@@ -23,7 +23,7 @@ func ToPoint(z [][]float64) []Point {
 	return points
 }
 
-func FullNormalized(optMatrix [][]float64) [][]float64 {
+func FullNormalized(optMatrix [][]float64, options []float64) [][]float64 {
 	numCrit := len(optMatrix)
 	numAlt := len(optMatrix[0])
 	normMatrix := make([][]float64, numCrit)
@@ -31,9 +31,22 @@ func FullNormalized(optMatrix [][]float64) [][]float64 {
 		normMatrix[i] = make([]float64, numAlt)
 	}
 	for i := 0; i < numCrit; i++ {
-		min, max := MinMax(optMatrix[i])
+		max, min := 0.0, 0.0
+		for q := 0; q < len(options); q++ {
+			if float64(i) == options[q] {
+				max, min = MinMax(optMatrix[i])
+				break
+			} else {
+				min, max = MinMax(optMatrix[i])
+				break
+			}
+		}
+
 		for j := 0; j < numAlt; j++ {
 			normMatrix[i][j] = (optMatrix[i][j] - min) / (max - min)
+			if normMatrix[i][j] == 0 {
+				normMatrix[i][j] = math.Abs(normMatrix[i][j])
+			}
 		}
 
 	}

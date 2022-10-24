@@ -179,17 +179,17 @@ func main() {
 	}
 
 	z1 := [][]float64{
-		{1, 0.541566065, 0.061842549, 0.870458937, 0},
-		{0.728254671, 0.582059749, 0.024211536, 0, 1},
-		{1, 0.511876922, 0.051906008, 0.760278934, 0},
+		{1.90, 2.25, 1.95, 2.5, 2.14, 2.5},
+		{17, 16, 20, 9, 12, 16},
+		{4.2, 4.4, 4.8, 4.6, 4.2, 4.8},
 	}
 
-	w := []float64{1, 1, 1}
-
-	normMatrix := decisions.FullNormalized(z1)
+	w := []float64{0.5, 0.3, 0.2}
+	options := []float64{1}
+	normMatrix := decisions.FullNormalized(z1, options)
 	fmt.Print("Нормализированные значения:\n")
 	for i := 0; i < len(normMatrix); i++ {
-		fmt.Printf("%.2f", normMatrix[i])
+		fmt.Printf("%.4f", normMatrix[i])
 		fmt.Print("\n")
 	}
 	ipArr, ip, i := decisions.IdealPoint(normMatrix, w)
@@ -303,5 +303,13 @@ func main() {
 	fmt.Println(cnvRss)
 	fmt.Println(cnvRsg)
 	fmt.Println(cnvRgs)
+
+	rng := [][]float64{
+		{2.53, 1.02, 1.84, 0.11, 1.43, 0.40},
+		{0.07, 0.58, 1.01, 2.44, 0.69, 2.13},
+		{0.00, 0.07, 0.00, 0.67, 0.00, 0.36},
+		{0.27, 1.28, 1.08, 2.67, 1.13, 2.36},
+	}
+	fmt.Println(expert.RankingTwoDimensional(rng, true))
 
 }
