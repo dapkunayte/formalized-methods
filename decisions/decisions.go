@@ -1,6 +1,7 @@
 package decisions
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -30,16 +31,21 @@ func FullNormalized(optMatrix [][]float64, options []float64) [][]float64 {
 	for i := 0; i < numCrit; i++ {
 		normMatrix[i] = make([]float64, numAlt)
 	}
+	q := 0
 	for i := 0; i < numCrit; i++ {
 		max, min := 0.0, 0.0
-		for q := 0; q < len(options); q++ {
+
+		if q < len(options) {
 			if float64(i) == options[q] {
 				max, min = MinMax(optMatrix[i])
-				break
+				fmt.Println("----", i)
+				q++
 			} else {
 				min, max = MinMax(optMatrix[i])
-				break
+				//break
 			}
+		} else {
+			min, max = MinMax(optMatrix[i])
 		}
 
 		for j := 0; j < numAlt; j++ {
