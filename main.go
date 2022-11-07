@@ -7,6 +7,7 @@ import (
 
 	//"ffmraz/decisionsAp"
 	expert "ffmraz/expert_opinions"
+	"ffmraz/fuzzy-logic"
 	plot "ffmraz/plots"
 	predict "ffmraz/predictions"
 
@@ -132,27 +133,6 @@ func main() {
 	plot.DrawLines(x, y, yNewExp, "bar3.html", "exp")
 	plot.DrawLines(x, y, yNewExpSqr, "bar4.html", "exp")
 
-	/*
-		normMatrix := fullNormalized(optMatrix)
-		fmt.Print("Нормализированные значения:\n")
-		for i := 0; i < len(normMatrix); i++ {
-			fmt.Printf("%.2f", normMatrix[i])
-			fmt.Print("\n")
-		}
-		ipArr, ip, i := idealPoint(normMatrix)
-		fmt.Println("\nРасстояние до идеальной точки: ", ip, "Альтернатива: ", i)
-		fmt.Print("Матрица всех расстояний ид.т: ")
-		fmt.Printf("%.2f", ipArr)
-		fmt.Print("\n")
-		aipArr, aip, ai := antiIdealPoint(normMatrix)
-		fmt.Println("Расстояние до антиидеальной точки: ", aip, "Альтернатива: ", ai)
-		fmt.Print("Матрица всех расстояний а.ид.т: ")
-		fmt.Printf("%.2f", aipArr)
-		fmt.Print("\n")
-		//fmt.Println(EvlanovKutuzov(resultRanking))
-
-	*/
-
 	fmt.Println()
 	fmt.Println("Ошибки для линейного мнк: ")
 	errsLSQ := predict.Errors(y, yNew, x, 2)
@@ -213,74 +193,224 @@ func main() {
 	fmt.Printf("%.2f", reMatr)
 	fmt.Print("\n")
 
-	p := []float64{0.3, 0.15, 0.55}
-	zz := [][]float64{
-		{0.8, 0.7, 0.8},
-		{0.9, 0.5, 0.8},
-		{0.7, 0.6, 0.7},
-		{0.9, 0.8, 0.8},
+	p := []float64{0.4, 0.45, 0.15}
+	zz1 := [][]float64{
+		{17, 20, 21},
+		{16, 19, 23},
+		{20, 23, 23},
+		{9, 12, 15},
+		{12, 15, 16},
+		{16, 19, 25},
 	}
 	zz2 := [][]float64{
-		{0.7, 0.7, 0.6},
-		{0.8, 0.7, 0.8},
-		{0.7, 0.7, 0.7},
-		{0.9, 0.8, 0.9},
+		{1.9, 1.85, 1.8},
+		{2.25, 2.23, 2.2},
+		{1.95, 1.90, 1.89},
+		{2.5, 2.47, 2.4},
+		{2.14, 2.1, 2},
+		{2.5, 2.3, 2.1},
 	}
-	zz3 := [][]float64{
-		{0.8, 0.7, 0.8},
-		{0.6, 0.5, 0.6},
-		{0.7, 0.6, 0.7},
-		{0.5, 0.4, 0.5},
-	}
-	zz4 := [][]float64{
-		{0.6, 0.4, 0.5},
-		{0.9, 0.7, 0.9},
-		{0.6, 0.5, 0.6},
-		{0.8, 0.7, 0.8},
-	}
+	/*
+		zTest := [][]float64{
+			{2, 4, 7},
+			{1, 3, 6},
+			{2, 3, 5},
+			{2, 4, 6},
+			{1, 5, 7},
+		}
 
-	b1 := decisionsAp.Bl(zz, p)
-	s1 := decisionsAp.Std(zz, p)
-	c := decisionsAp.ConvolutionStdBl(b1, s1)
+		fmt.Println("-----", decisionsAp.NormalizedMatrix(zTest, "min"))
 
-	b2 := decisionsAp.Bl(zz2, p)
-	s2 := decisionsAp.Std(zz2, p)
+	*/
+	zz1Norm := decisionsAp.NormalizedMatrix(zz1, "min")
+	zz2Norm := decisionsAp.NormalizedMatrix(zz2, "max")
+
+	b1 := decisionsAp.Bl(zz1Norm, p)
+	s1 := decisionsAp.Std(zz1Norm, p)
+	c1 := decisionsAp.ConvolutionStdBl(b1, s1)
+
+	b2 := decisionsAp.Bl(zz2Norm, p)
+	s2 := decisionsAp.Std(zz2Norm, p)
 	c2 := decisionsAp.ConvolutionStdBl(b2, s2)
 
-	b3 := decisionsAp.Bl(zz3, p)
-	s3 := decisionsAp.Std(zz3, p)
-	c3 := decisionsAp.ConvolutionStdBl(b3, s3)
+	fmt.Println("\n===ПеРвАя СиТуАцИя====")
+	fmt.Println("\nСнятие неопределенности для первого критерия (свертка B и СКО)")
+	for r := 0; r < len(c1); r++ {
+		fmt.Printf("%.4f", c1[r])
+		fmt.Println()
+	}
 
-	b4 := decisionsAp.Bl(zz4, p)
-	s4 := decisionsAp.Std(zz4, p)
-	c4 := decisionsAp.ConvolutionStdBl(b4, s4)
+	fmt.Println()
 
-	cArr := [][][]float64{c, c2, c3, c4}
+	fmt.Println("Снятие неопределенности для второго критерия (свертка B и СКО)")
+	for r := 0; r < len(c1); r++ {
+		fmt.Printf("%.4f", c2[r])
+		fmt.Println()
+	}
+
+	cArr := [][][]float64{c1, c2} //для однокритериального оставьте только одно значение в зависимости от того, какой критерий смотрите. то же самое с другими переменными *Arr
 
 	ipAp := decisionsAp.IdealPointAp(cArr)
 	reAp := decisionsAp.RealteСoncessionAp(cArr)
 	abAp := decisionsAp.AbsoluteСoncessionAp(cArr)
 	aipAp := decisionsAp.AntiIdealPointAp(cArr)
-	fmt.Println(ipAp[0])
-	fmt.Println(reAp[0])
-	fmt.Println(abAp[0])
-	fmt.Println(aipAp[0])
+	/*
+		fmt.Println(ipAp[0])
+		fmt.Println(reAp[0])
+		fmt.Println(abAp[0])
+		fmt.Println(aipAp[0])
 
-	z10_1 := decisionsAp.Z10(zz)
-	z10_2 := decisionsAp.Z10(zz2)
-	z10_3 := decisionsAp.Z10(zz3)
-	z10_4 := decisionsAp.Z10(zz4)
+	*/
 
-	zI_1 := decisionsAp.ZI(c, z10_1)
+	fmt.Println("\nМногокритериальная оценка ид.т")
+	for r := 0; r < len(ipAp); r++ {
+		fmt.Printf("%.4f", ipAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка а.ид.т")
+	for r := 0; r < len(aipAp); r++ {
+		fmt.Printf("%.4f", aipAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка относ. уст.")
+	for r := 0; r < len(reAp); r++ {
+		fmt.Printf("%.4f", reAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка абс. устр")
+	for r := 0; r < len(abAp); r++ {
+		fmt.Printf("%.4f", abAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	//вторая ситуация
+	z10_1 := decisionsAp.Z10(zz1Norm) //гурвиц
+	z10_2 := decisionsAp.Z10(zz2Norm)
+
+	fmt.Println("\n===ВтОрАя СиТуАцИя====")
+	fmt.Println("\nСнятие неопределенности для первого критерия (Гурвиц)")
+	for r := 0; r < len(z10_1); r++ {
+		fmt.Printf("%.4f", z10_1[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nСнятие неопределенности для второго критерия (Гурвиц)")
+	for r := 0; r < len(z10_2); r++ {
+		fmt.Printf("%.4f", z10_2[r])
+		fmt.Println()
+	}
+
+	z10Arr := [][][]float64{z10_1, z10_2}
+
+	z10pAp := decisionsAp.IdealPointAp(z10Arr)
+	z10aiAp := decisionsAp.AntiIdealPointAp(z10Arr)
+	z10abAp := decisionsAp.AbsoluteСoncessionAp(z10Arr)
+	z10ReAp := decisionsAp.RealteСoncessionAp(z10Arr)
+
+	fmt.Println("\nМногокритериальная оценка ид.т")
+	for r := 0; r < len(z10pAp); r++ {
+		fmt.Printf("%.4f", z10pAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка а.ид.т")
+	for r := 0; r < len(z10aiAp); r++ {
+		fmt.Printf("%.4f", z10aiAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка относ. уст.")
+	for r := 0; r < len(z10abAp); r++ {
+		fmt.Printf("%.4f", z10abAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка абс. устр")
+	for r := 0; r < len(z10ReAp); r++ {
+		fmt.Printf("%.4f", z10ReAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	//третья ситуация
+	zI_1 := decisionsAp.ZI(c1, z10_1) //свертка свертки байеса+ско и гурвица
 	zI_2 := decisionsAp.ZI(c2, z10_2)
-	zI_3 := decisionsAp.ZI(c3, z10_3)
-	zI_4 := decisionsAp.ZI(c4, z10_4)
 
-	zIArr := [][][]float64{zI_1, zI_2, zI_3, zI_4}
+	fmt.Println("\n===ТрЕтЬя СиТуАцИя====")
+	fmt.Println("\nСнятие неопределенности для первого критерия (свертка свертки B и СКО и Гурвица)")
+	for r := 0; r < len(zI_1); r++ {
+		fmt.Printf("%.4f", zI_1[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nСнятие неопределенности для второго критерия (свертка свертки B и СКО и Гурвица)")
+	for r := 0; r < len(zI_2); r++ {
+		fmt.Printf("%.4f", zI_2[r])
+		fmt.Println()
+	}
+
+	zIArr := [][][]float64{zI_1, zI_2}
 
 	zIpAp := decisionsAp.IdealPointAp(zIArr)
-	fmt.Println(zIpAp[4])
-	//cRow := decisionsAp.RowToCol(c)
+	zIaiAp := decisionsAp.AntiIdealPointAp(zIArr)
+	zIabAp := decisionsAp.AbsoluteСoncessionAp(zIArr)
+	zIReAp := decisionsAp.RealteСoncessionAp(zIArr)
+
+	fmt.Println("\nМногокритериальная оценка ид.т")
+	for r := 0; r < len(zIpAp); r++ {
+		fmt.Printf("%.4f", zIpAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка а.ид.т")
+	for r := 0; r < len(zIaiAp); r++ {
+		fmt.Printf("%.4f", zIaiAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка относ. уст.")
+	for r := 0; r < len(zIabAp); r++ {
+		fmt.Printf("%.4f", zIabAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	fmt.Println("\nМногокритериальная оценка абс. устр")
+	for r := 0; r < len(zIReAp); r++ {
+		fmt.Printf("%.4f", zIReAp[r])
+		fmt.Println()
+	}
+
+	fmt.Println()
+
+	//нечеткие множества
 
 	abc := [][]float64{
 		{0, 0.3, 0.7, 0.9, 1},
@@ -311,5 +441,23 @@ func main() {
 		{0.27, 1.28, 1.08, 2.67, 1.13, 2.36},
 	}
 	fmt.Println(expert.RankingTwoDimensional(rng, true))
+
+	fuzzyAlts := [][]float64{
+		{0.40, 0.20, 0.70, 0.70, 0.30, 0.90, 0.10, 0.30, 0.60, 0.40},
+		{0.20, 0.10, 0.90, 0.30, 0.10, 0.90, 0.20, 0.40, 0.70, 0.80},
+		{0.10, 0.30, 0.60, 0.30, 0.60, 0.20, 0.30, 0.60, 0.80, 0.80},
+	}
+
+	fuzzyWeights := [][]float64{
+		{0, 0, 0.33},    //bad
+		{0, 0.33, 0.66}, //medium
+		{0.66, 1, 1},    //high
+	}
+
+	fuzzBad := fuzzy_logic.Fuzzification(fuzzyAlts, fuzzyWeights[0])
+	fuzzMed := fuzzy_logic.Fuzzification(fuzzyAlts, fuzzyWeights[1])
+	fuzzHigh := fuzzy_logic.Fuzzification(fuzzyAlts, fuzzyWeights[2])
+	rules := fuzzy_logic.RulesConv(fuzzBad, fuzzMed, fuzzHigh, 0)
+	fmt.Println(rules)
 
 }

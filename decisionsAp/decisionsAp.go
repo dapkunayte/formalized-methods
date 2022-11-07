@@ -212,3 +212,39 @@ func ZI(z7 [][]float64, z10 [][]float64) [][]float64 {
 	}
 	return ziMatrix
 }
+
+func NormalizedMatrix(matrix [][]float64, minOrMax string) [][]float64 {
+	min, max := 0.0, 0.0
+	switch minOrMax {
+	case "max":
+		min, max = MinMax(matrix[0])
+		for i := 1; i < len(matrix); i++ {
+			min1, max1 := MinMax(matrix[i])
+			if min > min1 {
+				min = min1
+			}
+			if max < max1 {
+				max = max1
+			}
+		}
+	case "min":
+		max, min = MinMax(matrix[0])
+		for i := 1; i < len(matrix); i++ {
+			max1, min1 := MinMax(matrix[i])
+			if max > max1 {
+				max = max1
+			}
+			if min < min1 {
+				min = min1
+			}
+		}
+	}
+
+	for i := 0; i < len(matrix); i++ {
+		for j := 0; j < len(matrix[0]); j++ {
+			matrix[i][j] = (matrix[i][j] - min) / (max - min)
+		}
+	}
+
+	return matrix
+}
