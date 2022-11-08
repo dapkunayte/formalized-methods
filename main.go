@@ -336,7 +336,7 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Println("\nМногокритериальная оценка относ. уст.")
+	fmt.Println("\nМногокритериальная оценка абс. уст.")
 	for r := 0; r < len(z10abAp); r++ {
 		fmt.Printf("%.4f", z10abAp[r])
 		fmt.Println()
@@ -344,7 +344,7 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Println("\nМногокритериальная оценка абс. устр")
+	fmt.Println("\nМногокритериальная оценка относ . устр")
 	for r := 0; r < len(z10ReAp); r++ {
 		fmt.Printf("%.4f", z10ReAp[r])
 		fmt.Println()
@@ -394,7 +394,7 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Println("\nМногокритериальная оценка относ. уст.")
+	fmt.Println("\nМногокритериальная оценка абс. уст.")
 	for r := 0; r < len(zIabAp); r++ {
 		fmt.Printf("%.4f", zIabAp[r])
 		fmt.Println()
@@ -402,7 +402,7 @@ func main() {
 
 	fmt.Println()
 
-	fmt.Println("\nМногокритериальная оценка абс. устр")
+	fmt.Println("\nМногокритериальная оценка относ. уст.")
 	for r := 0; r < len(zIReAp); r++ {
 		fmt.Printf("%.4f", zIReAp[r])
 		fmt.Println()
