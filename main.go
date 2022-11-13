@@ -351,64 +351,66 @@ func main() {
 	}
 
 	fmt.Println()
-
-	//третья ситуация
-	zI_1 := decisionsAp.ZI(c1, z10_1) //свертка свертки байеса+ско и гурвица
-	zI_2 := decisionsAp.ZI(c2, z10_2)
-
 	fmt.Println("\n===ТрЕтЬя СиТуАцИя====")
-	fmt.Println("\nСнятие неопределенности для первого критерия (свертка свертки B и СКО и Гурвица)")
-	for r := 0; r < len(zI_1); r++ {
-		fmt.Printf("%.4f", zI_1[r])
+	//третья ситуация
+	betta := []float64{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1}
+	for b := 0; b < len(betta); b++ {
+		zI_1 := decisionsAp.ZI(c1, z10_1, betta[b]) //свертка свертки байеса+ско и гурвица
+		zI_2 := decisionsAp.ZI(c2, z10_2, betta[b])
+		fmt.Println("---------Бетта = ", betta[b], "---------------")
+		fmt.Println("\nСнятие неопределенности для первого критерия (свертка свертки B и СКО и Гурвица)")
+		for r := 0; r < len(zI_1); r++ {
+			fmt.Printf("%.4f", zI_1[r])
+			fmt.Println()
+		}
+
+		fmt.Println()
+
+		fmt.Println("\nСнятие неопределенности для второго критерия (свертка свертки B и СКО и Гурвица)")
+		for r := 0; r < len(zI_2); r++ {
+			fmt.Printf("%.4f", zI_2[r])
+			fmt.Println()
+		}
+
+		zIArr := [][][]float64{zI_1, zI_2}
+
+		zIpAp := decisionsAp.IdealPointAp(zIArr)
+		zIaiAp := decisionsAp.AntiIdealPointAp(zIArr)
+		zIabAp := decisionsAp.AbsoluteСoncessionAp(zIArr)
+		zIReAp := decisionsAp.RealteСoncessionAp(zIArr)
+
+		fmt.Println("\nМногокритериальная оценка ид.т")
+		for r := 0; r < len(zIpAp); r++ {
+			fmt.Printf("%.4f", zIpAp[r])
+			fmt.Println()
+		}
+
+		fmt.Println()
+
+		fmt.Println("\nМногокритериальная оценка а.ид.т")
+		for r := 0; r < len(zIaiAp); r++ {
+			fmt.Printf("%.4f", zIaiAp[r])
+			fmt.Println()
+		}
+
+		fmt.Println()
+
+		fmt.Println("\nМногокритериальная оценка абс. уст.")
+		for r := 0; r < len(zIabAp); r++ {
+			fmt.Printf("%.4f", zIabAp[r])
+			fmt.Println()
+		}
+
+		fmt.Println()
+
+		fmt.Println("\nМногокритериальная оценка относ. уст.")
+		for r := 0; r < len(zIReAp); r++ {
+			fmt.Printf("%.4f", zIReAp[r])
+			fmt.Println()
+		}
+
 		fmt.Println()
 	}
-
-	fmt.Println()
-
-	fmt.Println("\nСнятие неопределенности для второго критерия (свертка свертки B и СКО и Гурвица)")
-	for r := 0; r < len(zI_2); r++ {
-		fmt.Printf("%.4f", zI_2[r])
-		fmt.Println()
-	}
-
-	zIArr := [][][]float64{zI_1, zI_2}
-
-	zIpAp := decisionsAp.IdealPointAp(zIArr)
-	zIaiAp := decisionsAp.AntiIdealPointAp(zIArr)
-	zIabAp := decisionsAp.AbsoluteСoncessionAp(zIArr)
-	zIReAp := decisionsAp.RealteСoncessionAp(zIArr)
-
-	fmt.Println("\nМногокритериальная оценка ид.т")
-	for r := 0; r < len(zIpAp); r++ {
-		fmt.Printf("%.4f", zIpAp[r])
-		fmt.Println()
-	}
-
-	fmt.Println()
-
-	fmt.Println("\nМногокритериальная оценка а.ид.т")
-	for r := 0; r < len(zIaiAp); r++ {
-		fmt.Printf("%.4f", zIaiAp[r])
-		fmt.Println()
-	}
-
-	fmt.Println()
-
-	fmt.Println("\nМногокритериальная оценка абс. уст.")
-	for r := 0; r < len(zIabAp); r++ {
-		fmt.Printf("%.4f", zIabAp[r])
-		fmt.Println()
-	}
-
-	fmt.Println()
-
-	fmt.Println("\nМногокритериальная оценка относ. уст.")
-	for r := 0; r < len(zIReAp); r++ {
-		fmt.Printf("%.4f", zIReAp[r])
-		fmt.Println()
-	}
-
-	fmt.Println()
 
 	//нечеткие множества
 

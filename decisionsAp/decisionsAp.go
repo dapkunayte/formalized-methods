@@ -197,7 +197,7 @@ func Z10(z [][]float64) [][]float64 {
 	return z10Matrix
 }
 
-func ZI(z7 [][]float64, z10 [][]float64) [][]float64 {
+func ZI(z7 [][]float64, z10 [][]float64, betta float64) [][]float64 {
 	numAlt := len(z7)
 	//numCond := len(z[0])
 	l := []float64{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1}
@@ -207,7 +207,7 @@ func ZI(z7 [][]float64, z10 [][]float64) [][]float64 {
 	}
 	for i := 0; i < numAlt; i++ {
 		for j := 0; j < len(l); j++ {
-			ziMatrix[i][j] = (1-l[j])*z7[i][j] + l[j]*z10[i][j]
+			ziMatrix[i][j] = (1-betta)*z7[i][j] + betta*z10[i][j]
 		}
 	}
 	return ziMatrix
