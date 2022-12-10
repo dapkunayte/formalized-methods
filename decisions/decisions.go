@@ -59,7 +59,7 @@ func FullNormalized(optMatrix [][]float64, options []float64) [][]float64 {
 	return normMatrix
 }
 
-func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int, []int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	idealPointMatrix := make([][]float64, numCrit)
@@ -83,15 +83,17 @@ func IdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
 	}
 	ip, _ := MinMax(ipArr)
 	alt := 0
+	alt_matrix := []int{}
 	for i, v := range ipArr {
 		if v == ip {
 			alt = i + 1
+			alt_matrix = append(alt_matrix, alt)
 		}
 	}
-	return ipArr, ip, alt
+	return ipArr, ip, alt, alt_matrix
 }
 
-func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, int, []int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	idealPointMatrix := make([][]float64, numCrit)
@@ -115,12 +117,14 @@ func AntiIdealPoint(normMatrix [][]float64, w []float64) ([]float64, float64, in
 	}
 	_, ip := MinMax(ipArr)
 	alt := 0
+	alt_matrix := []int{}
 	for i, v := range ipArr {
 		if v == ip {
 			alt = i + 1
+			alt_matrix = append(alt_matrix, alt)
 		}
 	}
-	return ipArr, ip, alt
+	return ipArr, ip, alt, alt_matrix
 }
 
 func sqr(x float64) float64 { return x * x }
@@ -225,7 +229,7 @@ func AntiIdealPointXYZ(normMatrix [][]float64, w []float64) ([]float64, float64,
 	return antiIdealPointMatrix, aip, alt
 }
 
-func AbsoluteСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func AbsoluteСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int, []int) {
 
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
@@ -253,15 +257,17 @@ func AbsoluteСoncession(normMatrix [][]float64, w []float64) ([]float64, float6
 
 	_, abMax := MinMax(abArr)
 	alt := 0
+	alt_matrix := []int{}
 	for i, v := range abArr {
 		if v == abMax {
 			alt = i + 1
+			alt_matrix = append(alt_matrix, alt)
 		}
 	}
-	return abArr, abMax, alt
+	return abArr, abMax, alt, alt_matrix
 }
 
-func RelateСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int) {
+func RelateСoncession(normMatrix [][]float64, w []float64) ([]float64, float64, int, []int) {
 	numCrit := len(normMatrix)
 	numAlt := len(normMatrix[0])
 	relateMatrix := make([][]float64, numCrit)
@@ -288,12 +294,14 @@ func RelateСoncession(normMatrix [][]float64, w []float64) ([]float64, float64,
 	}
 	_, reMax := MinMax(reArr)
 	alt := 0
+	alt_matrix := []int{}
 	for i, v := range reArr {
 		if v == reMax {
 			alt = i + 1
+			alt_matrix = append(alt_matrix, alt)
 		}
 	}
-	return reArr, reMax, alt
+	return reArr, reMax, alt, alt_matrix
 }
 
 func MinMax(array []float64) (float64, float64) {
