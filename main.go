@@ -7,7 +7,7 @@ import (
 
 	//"ffmraz/decisionsAp"
 	expert "ffmraz/expert_opinions"
-	"ffmraz/fuzzy-logic"
+	fuzzy_logic "ffmraz/fuzzy-logic"
 	plot "ffmraz/plots"
 	predict "ffmraz/predictions"
 
@@ -172,22 +172,22 @@ func main() {
 		fmt.Printf("%.4f", normMatrix[i])
 		fmt.Print("\n")
 	}
-	ipArr, ip, i := decisions.IdealPoint(normMatrix, w)
+	ipArr, ip, i, _ := decisions.IdealPoint(normMatrix, w)
 	fmt.Println("\nРасстояние до идеальной точки: ", ip, ", Альтернатива: ", i)
 	fmt.Print("Матрица всех расстояний ид.т: ")
 	fmt.Printf("%.2f", ipArr)
 	fmt.Print("\n")
-	aipArr, aip, ai := decisions.AntiIdealPoint(normMatrix, w)
+	aipArr, aip, ai, _ := decisions.AntiIdealPoint(normMatrix, w)
 	fmt.Println("Расстояние до антиидеальной точки: ", aip, ", Альтернатива: ", ai)
 	fmt.Print("Матрица всех расстояний а.ид.т: ")
 	fmt.Printf("%.2f", aipArr)
 	fmt.Print("\n")
-	abMatr, abp, ab := decisions.AbsoluteСoncession(normMatrix, w)
+	abMatr, abp, ab, _ := decisions.AbsoluteСoncession(normMatrix, w)
 	fmt.Println("Принцип абсолютной уступки: ", abp, ", Альтернатива: ", ab)
 	fmt.Print("Матрица: ")
 	fmt.Printf("%.2f", abMatr)
 	fmt.Print("\n")
-	reMatr, rebp, rb := decisions.RelateСoncession(normMatrix, w)
+	reMatr, rebp, rb, _ := decisions.RelateСoncession(normMatrix, w)
 	fmt.Println("Принцип относительной уступки: ", rebp, ", Альтернатива: ", rb)
 	fmt.Print("Матрица: ")
 	fmt.Printf("%.2f", reMatr)
