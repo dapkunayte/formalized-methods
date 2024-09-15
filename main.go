@@ -69,7 +69,7 @@ func main() {
 		for i := range result {
 			fmt.Println("Эксперт №", i+1, ":", result[i])
 		}
-		fmt.Println("\nЗначения для расчёта медианы: ", expert.PairComparison(result, 4), "\n")
+		fmt.Println("\nЗначения для расчёта медианы: ", expert.PairComparison(result, 4))
 		fmt.Println("Итоговая компетентность экспертов: ")
 		koefComp := expert.EvlanovKutuzov(resultRanking)
 		_, maxCompExp := expert.MinMax(koefComp)
@@ -85,9 +85,9 @@ func main() {
 		kendalW, s, kendallCrit := expert.KendallW(mainMatrix)
 		fmt.Println("\nОценка согласованности экспертов:\nW: ", kendalW, "\nS: ", s, "\nКритическое значение: ", kendallCrit)
 		if s > kendallCrit {
-			fmt.Println("Мнения экспертов согласованны (S > критического значения)\n")
+			fmt.Println("Мнения экспертов согласованны (S > критического значения)")
 		} else {
-			fmt.Println("Мнения экспертов несогласованны (S < критического значения)\n")
+			fmt.Println("Мнения экспертов несогласованны (S < критического значения)")
 		}
 	}
 
